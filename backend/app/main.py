@@ -1,5 +1,9 @@
+import os
+from pathlib import Path
+
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from .models import FoodAnalysis, MealPlanRequest, RecipeRequest
 from .services.food_analysis import analyze_food
@@ -11,9 +15,16 @@ app = FastAPI(
     version="1.0.0",
 )
 
+default_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+configured_origins = [
+    origin.strip()
+    for origin in os.getenv("FOODVERSE_CORS_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=configured_origins or default_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,4 +72,11 @@ def meal_plan(request: MealPlanRequest) -> dict:
 @app.post("/api/recipe")
 def recipe(request: RecipeRequest) -> dict:
     return build_recipe(request.prompt)
+
+
+# In production the Docker build places the compiled Vite application here.
+# API routes are registered first, so /api/* and /docs remain available.
+frontend_directory = Path(__file__).resolve().parents[2] / "dist"
+if frontend_directory.is_dir():
+    app.mount("/", StaticFiles(directory=frontend_directory, html=True), name="frontend")
 

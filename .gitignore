@@ -4,5 +4,10 @@ dist/
 __pycache__/
 *.pyc
 .env
+.env.*
+!.env.example
 .DS_Store
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
 

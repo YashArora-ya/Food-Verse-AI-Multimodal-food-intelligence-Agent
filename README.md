@@ -43,6 +43,75 @@ Alternatively, run both services with:
 docker compose up
 ```
 
+## Deployment
+
+This project is **not a Streamlit application**. The browser interface is React + TypeScript + CSS, built with Vite, while `backend/app/main.py` is a FastAPI ASGI application. Selecting that Python file as a Streamlit entrypoint fails because it does not call `streamlit` or define a Streamlit page.
+
+The recommended hosted architecture is:
+
+- **Frontend: Vercel** — purpose-built CDN deployment for the Vite/React application.
+- **Backend: Render Web Service** — persistent Python service for FastAPI and uploaded image/video requests.
+
+### 1. Deploy the FastAPI backend on Render
+
+The repository includes `render.yaml`, so the easiest path is **New → Blueprint**, then select this repository. For manual Web Service setup use:
+
+| Setting | Value |
+| --- | --- |
+| Runtime | Python 3 |
+| Root directory | `backend` |
+| Build command | `pip install -r requirements.txt` |
+| Start command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| Health check | `/api/health` |
+| Python version | `3.12.11` |
+
+After the first deployment, copy the generated URL, such as `https://foodverse-api.onrender.com`.
+
+In Render’s **Environment** settings add:
+
+```text
+FOODVERSE_CORS_ORIGINS=https://your-vercel-project.vercel.app
+```
+
+Use the exact Vercel origin with no trailing slash. Multiple allowed frontends can be supplied as a comma-separated list. Do not put API keys in `render.yaml`; add them through Render’s Environment page.
+
+### 2. Deploy the React frontend on Vercel
+
+Import the same GitHub repository into Vercel. `vercel.json` supplies the build settings. For manual setup use:
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | Vite |
+| Root directory | repository root (`.`) |
+| Install command | `corepack enable && pnpm install --frozen-lockfile` |
+| Build command | `pnpm run build` |
+| Output directory | `dist` |
+
+In Vercel’s **Project Settings → Environment Variables**, add this for Production and Preview:
+
+```text
+VITE_API_BASE_URL=https://foodverse-api.onrender.com
+```
+
+Vite reads this value at build time, so redeploy the frontend after changing it. The application automatically keeps using relative `/api` URLs during local development.
+
+### Single-service alternative
+
+The multi-stage `Dockerfile` builds the React frontend and serves it from FastAPI. Use this option on Railway, Render Docker, Fly.io, or another Docker-compatible host when you prefer one URL and no cross-origin configuration.
+
+For Railway, connect the repository normally. `railway.json` selects the root `Dockerfile`, and Railway supplies `PORT` automatically.
+
+### Any Docker-compatible host
+
+```bash
+docker build -t foodverse-ai .
+docker run --rm -p 8000:8000 foodverse-ai
+```
+
+Open `http://localhost:8000`. API documentation remains available at `http://localhost:8000/docs`.
+
+Secrets and model credentials must be configured in the hosting provider's environment-variable settings. Never add them to `.env.example`, source files, deployment manifests, or Git history. `.venv`, `.env*`, `node_modules`, and build output are excluded by `.gitignore` and `.dockerignore`.
+
 ## Architecture
 
 ```text

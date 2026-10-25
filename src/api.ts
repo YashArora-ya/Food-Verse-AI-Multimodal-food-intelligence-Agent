@@ -1,7 +1,9 @@
 import type { FoodAnalysis, HygieneAnalysis, MealPlan, Recipe } from './types'
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(path, options)
+  const response = await fetch(`${API_BASE_URL}${path}`, options)
   if (!response.ok) {
     const body = await response.json().catch(() => null)
     throw new Error(body?.detail || 'Something went wrong. Please try again.')
