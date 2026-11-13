@@ -4,7 +4,7 @@ import {
   Clock3, Droplets, Flame, Gauge, HeartPulse, Leaf, Menu, Mic, Play, Plus, ScanLine, Search,
   ShieldCheck, Sparkles, Sprout, TrendingUp, Upload, Video, WandSparkles, X, Zap,
 } from 'lucide-react'
-import { analyzeFood, analyzeHygiene, createMealPlan, createRecipe } from './api'
+import { analyzeFood, analyzeHygiene, createMealPlan, createRecipe } from './services'
 import type { FoodAnalysis, HygieneAnalysis, MealPlan, Recipe, View } from './types'
 
 const fallbackAnalysis: FoodAnalysis = {
@@ -201,7 +201,7 @@ function FoodAnalyzer({ focus }: { focus: 'analyze' | 'freshness' }) {
           {preview && <span className="replace-photo">Click to replace photo</span>}
         </div>
         <button className="analyze-button" disabled={loading} onClick={run}>{loading ? <><span className="spinner" /> Reading visual signals...</> : <><ScanLine size={19} /> Analyze food <ArrowRight size={17} /></>}</button>
-        {error && <p className="soft-error">Demo result shown — connect the FastAPI server for live analysis.</p>}
+        {error && <p className="soft-error">This file could not be read, so a demonstration result is shown instead.</p>}
         <div className="privacy-note"><ShieldCheck size={16} /><span><strong>Your images stay yours.</strong> Processed securely and never used for training without consent.</span></div>
       </div>
       <div className={`result-panel ${analysis ? 'filled' : ''}`}>

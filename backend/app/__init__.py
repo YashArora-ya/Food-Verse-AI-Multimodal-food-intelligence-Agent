@@ -1,2 +1,0 @@
-"""FoodVerse AI API package."""
-
