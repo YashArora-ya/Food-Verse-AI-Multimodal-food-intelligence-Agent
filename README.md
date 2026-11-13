@@ -1,6 +1,6 @@
 # FoodVerse AI
 
-FoodVerse is a frontend-only food intelligence experience built with React, TypeScript, CSS, and Vite.
+FoodVerse is a food intelligence experience built with React, TypeScript, CSS, and Vite. A lightweight Streamlit entrypoint hosts the compiled React interface for Streamlit Community Cloud.
 
 ## Features
 
@@ -29,6 +29,19 @@ pnpm run build
 
 The static site is generated in `dist/`.
 
+## Deploy on Streamlit Community Cloud
+
+Use these settings:
+
+| Setting | Value |
+| --- | --- |
+| Repository | This GitHub repository |
+| Branch | `main` |
+| Main file path | `streamlit_app.py` |
+| Python version | 3.12 |
+
+The production `dist/` directory is committed because `streamlit_app.py` embeds its JavaScript and CSS. Whenever the React source changes, run `pnpm run build` before committing.
+
 ## Deploy on Vercel
 
 Import the GitHub repository into Vercel. The included `vercel.json` supplies the deployment settings:
@@ -41,7 +54,7 @@ Import the GitHub repository into Vercel. The included `vercel.json` supplies th
 | Build command | `pnpm run build` |
 | Output directory | `dist` |
 
-No Python runtime, Streamlit entrypoint, API URL, CORS configuration, or backend environment variables are required.
+No API URL, CORS configuration, backend, or secret environment variables are required.
 
 ## Project structure
 
@@ -54,4 +67,4 @@ src/
   main.tsx      React entrypoint
 ```
 
-Do not commit `.env` files, virtual environments, dependency folders, or production build output. These remain excluded by `.gitignore`.
+Do not commit `.env` files, virtual environments, or dependency folders. The production build is intentionally committed for Streamlit hosting.

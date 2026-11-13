@@ -1,5 +1,5 @@
 node_modules/
-dist/
+# The production build is committed because Streamlit embeds it directly.
 .venv/
 __pycache__/
 *.pyc
